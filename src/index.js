@@ -13,7 +13,6 @@ const refs = {
 
 const lineParameters = {
   key:"32214751-b09778eb488071213c70b42e8",
-  q,
   image_type:"photo",
   orientation: "horizontal",
   safesearch: "true",
@@ -46,6 +45,7 @@ async function submitHandler(e) {
         return;
       } else {
         Notiflix.Notify.success(`Hooray! We found ${pagesLeft} images.`);
+        smoothScroll();
         refs.gallery.insertAdjacentHTML(
           'beforeend',
           response.data.hits.map(picture => renderPicture(picture)).join('')
@@ -109,3 +109,15 @@ const lightBox = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
   scrollZoom: false,
 });
+
+function smoothScroll() {
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
+  
+  window.scrollBy({
+    top: cardHeight * -1,
+    behavior: 'smooth',
+    
+  });
+}
