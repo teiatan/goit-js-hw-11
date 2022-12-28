@@ -6,9 +6,9 @@ import axios from 'axios';
 
 
 const refs = {
-    form: document.querySelector('.search-form'),
-    gallery: document.querySelector('.gallery'),
-    loadMoreButton: document.querySelector('#load-more'),  
+  form: document.querySelector('.search-form'),
+  gallery: document.querySelector('.gallery'),
+  loadMoreButton: document.querySelector('#load-more'),  
 };
 
 const lineParameters = {
@@ -45,7 +45,6 @@ async function submitHandler(e) {
         return;
       } else {
         Notiflix.Notify.success(`Hooray! We found ${pagesLeft} images.`);
-        smoothScroll();
         refs.gallery.insertAdjacentHTML(
           'beforeend',
           response.data.hits.map(picture => renderPicture(picture)).join('')
@@ -53,6 +52,7 @@ async function submitHandler(e) {
         pagesLeft -= PER_PAGE;
         refs.loadMoreButton.classList.remove('hidden');
         refs.loadMoreButton.classList.add('visible');
+        smoothScroll();
       }
     });
     lightBox.refresh();
