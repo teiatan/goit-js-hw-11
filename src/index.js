@@ -79,7 +79,7 @@ async function loadMorehandler() {
 function renderPicture(picture) {
   return `
     <div class="photo-card">
-      <a href=${picture.largeImageURL}><img src=${picture.webformatURL} alt=${picture.tags} loading="lazy" width="270" max-height="180"/>
+      <a href=${picture.largeImageURL}><div class="photo-img"><img src=${picture.webformatURL} alt=${picture.tags} loading="lazy" width="270" max-height="180"/></div>
       <div class="info">
         <p class="info-item">
           <b>Likes: </b><span>${picture.likes}</span>
