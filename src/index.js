@@ -3,6 +3,7 @@ import Notiflix from 'notiflix';
 import SimpleLightbox from "simplelightbox";
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import axios from 'axios';
+import debounce from 'lodash.debounce';
 
 
 const refs = {
@@ -132,7 +133,7 @@ function smoothScroll() {
   });
 };
 
-window.addEventListener('scroll', checkPosition);
+window.addEventListener('scroll', debounce(checkPosition, 500));
 function checkPosition() {
   // Нам потребуется знать высоту документа и высоту экрана:
   const height = document.body.offsetHeight;
