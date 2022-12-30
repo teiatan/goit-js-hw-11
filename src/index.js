@@ -18,62 +18,74 @@ const lineParameters = {
   safesearch: "true",
 };
 
+
+
 const PER_PAGE = 40;
 
 let img = undefined;
 let page = 1;
 let pagesLeft = 0;
 
-refs.form.addEventListener('submit', submitHandler);
+function getImg(img, page) {
+  return axios.get(
+    `https://pixabay.com/api/?key=${lineParameters.key}&q=${img}&image_type=${lineParameters.image_type}&orientation=${lineParameters.orientation}&safesearch=${lineParameters.safesearch}&page=${page}&per_page=${PER_PAGE}`
+  );
+}
+
 refs.loadMoreButton.addEventListener('click', loadMorehandler);
+refs.form.addEventListener('submit', submitHandler);
 
 async function submitHandler(e) {
-    e.preventDefault();
+  pagesLeft = 0;
+  e.preventDefault();
+  refs.loadMoreButton.classList.add('hidden');
+  refs.loadMoreButton.classList.remove('visible');
+  img = e.currentTarget.elements.searchQuery.value;
+  refs.gallery.innerHTML = '';
+  const response = await getImg(img, page);  
+  if (img === ' ' || img === '') {
+    Notiflix.Notify.failure('Please, enter your search query.');
+    return;
+  }
+  pagesLeft = response.data.totalHits;
+  if (pagesLeft === 0) {
+    Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+    return;
+  } else {
+    Notiflix.Notify.success(`Hooray! We found ${pagesLeft} images.`);
+    refs.gallery.insertAdjacentHTML(
+      'beforeend',
+      response.data.hits.map(picture => renderPicture(picture)).join('')
+    );
+    pagesLeft -= PER_PAGE;
+    refs.loadMoreButton.classList.remove('hidden');
+    refs.loadMoreButton.classList.add('visible');
+    smoothScroll();
+  };
+lightBox.refresh();
+/* let infScroll = new InfiniteScroll( '.gallery', {append: required, onInit: loadMorehandler}); */
+}
+
+async function loadMorehandler() {
+  
+  page += 1;
+  if (pagesLeft <= 0) {
+    Notiflix.Notify.info(
+      "We're sorry, but you've reached the end of search results."
+    );
     refs.loadMoreButton.classList.add('hidden');
     refs.loadMoreButton.classList.remove('visible');
-    img = e.currentTarget.elements.searchQuery.value;
-    refs.gallery.innerHTML = '';
-
-    await getImg(img, page).then(response => {
-      if (img === ' ' || img === '') {
-        Notiflix.Notify.failure('Please, enter your search query.');
-        return;
-      }
-      pagesLeft = response.data.totalHits;
-      if (response.data.hits.length === 0) {
-        Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-        return;
-      } else {
-        Notiflix.Notify.success(`Hooray! We found ${pagesLeft} images.`);
-        refs.gallery.insertAdjacentHTML(
-          'beforeend',
-          response.data.hits.map(picture => renderPicture(picture)).join('')
-        );
-        pagesLeft -= PER_PAGE;
-        refs.loadMoreButton.classList.remove('hidden');
-        refs.loadMoreButton.classList.add('visible');
-        smoothScroll();
-      }
-    });
-    lightBox.refresh();
-  }
-  
-async function loadMorehandler() {
-    page += 1;
-    if (pagesLeft <= 0) {
-      Notiflix.Notify.info(
-        "We're sorry, but you've reached the end of search results."
+  } else {
+    try {
+      const response = await getImg(img, page);
+      refs.gallery.insertAdjacentHTML(
+        'beforeend',
+        response.data.hits.map(picture => renderPicture(picture)).join('')
       );
-    } else {
-      await getImg(img, page).then(response =>
-        refs.gallery.insertAdjacentHTML(
-          'beforeend',
-          response.data.hits.map(picture => renderPicture(picture)).join('')
-        )
-      ).catch();
       pagesLeft -= PER_PAGE;
-    }
-    lightBox.refresh();
+    } catch (error) {};
+  }
+  lightBox.refresh();
 }
 
 function renderPicture(picture) {
@@ -98,11 +110,7 @@ function renderPicture(picture) {
   `;
 }
 
-function getImg(img, page) {
-  return axios.get(
-    `https://pixabay.com/api/?key=${lineParameters.key}&q=${img}&image_type=${lineParameters.image_type}&orientation=${lineParameters.orientation}&safesearch=${lineParameters.safesearch}&page=${page}&per_page=${PER_PAGE}`
-  );
-}
+
 
 const lightBox = new SimpleLightbox('.gallery a', {
   captionsData: 'alt',
@@ -111,7 +119,7 @@ const lightBox = new SimpleLightbox('.gallery a', {
 });
 
 function smoothScroll() {
-  const { height: cardHeight } = document
+  /* const { height: cardHeight } = document
     .querySelector('.gallery')
     .firstElementChild.getBoundingClientRect();
   
@@ -119,5 +127,6 @@ function smoothScroll() {
     top: cardHeight * -1,
     behavior: 'smooth',
     
-  });
-}
+  }); */
+};
+
