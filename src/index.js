@@ -62,9 +62,9 @@ async function submitHandler(e) {
       refs.loadMoreButton.classList.remove('hidden');
       refs.loadMoreButton.classList.add('visible');
       smoothScroll();
+      window.addEventListener('scroll', checkPosition);
     };
     lightBox.refresh();
-    /* let infScroll = new InfiniteScroll( '.gallery', {append: required, onInit: loadMorehandler}); */
   } catch (error) {};
 }
 
@@ -133,30 +133,25 @@ function smoothScroll() {
   });
 };
 
-window.addEventListener('scroll', debounce(checkPosition, 500));
+
 async function checkPosition() {
-  // Нам потребуется знать высоту документа и высоту экрана:
+  // высота документа и высота экрана:
   const height = document.body.offsetHeight;
   const screenHeight = window.innerHeight;
 
-  // Они могут отличаться: если на странице много контента,
-  // высота документа будет больше высоты экрана (отсюда и скролл).
-
-  // Записываем, сколько пикселей пользователь уже проскроллил:
+  // сколько проскроллено:
   const scrolled = window.scrollY;
 
-  // Обозначим порог, по приближении к которому
-  // будем вызывать какое-то действие.
-  // В нашем случае — четверть экрана до конца страницы:
+  // порог для вызова функции
   const threshold = height - screenHeight / 4;
 
-  // Отслеживаем, где находится низ экрана относительно страницы:
+  // низ экрана относительно страницы:
   const position = scrolled + screenHeight;
-  console.log(position);
-  console.log(threshold);
+console.log(position);
   if (position < threshold) {
     return;
   } else if (pagesLeft <= 0) {
+    window.removeEventListener('scroll', checkPosition);
     Notiflix.Notify.info(
       "We're sorry, but you've reached the end of search results."
     );
