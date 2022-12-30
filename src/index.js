@@ -134,7 +134,7 @@ function smoothScroll() {
 };
 
 window.addEventListener('scroll', debounce(checkPosition, 500));
-function checkPosition() {
+async function checkPosition() {
   // Нам потребуется знать высоту документа и высоту экрана:
   const height = document.body.offsetHeight;
   const screenHeight = window.innerHeight;
@@ -154,26 +154,24 @@ function checkPosition() {
   const position = scrolled + screenHeight;
   console.log(position);
   console.log(threshold);
- /*  if (position <= threshold) {
-    // Если мы пересекли полосу-порог, вызываем нужное действие.
-    page += 1;
-  if (pagesLeft <= 0) {
+  if (position < threshold) {
+    return;
+  } else if (pagesLeft <= 0) {
     Notiflix.Notify.info(
       "We're sorry, but you've reached the end of search results."
     );
-    refs.loadMoreButton.classList.add('hidden');
-    refs.loadMoreButton.classList.remove('visible');
     return;
   } else {
-    try {
-      const response = getImg(img, page);
-      refs.gallery.insertAdjacentHTML(
-        'beforeend',
-        response.data.hits.map(picture => renderPicture(picture)).join('')
-      );
-      pagesLeft -= PER_PAGE;
-      lightBox.refresh();
-    } catch (error) {};
+    page += 1;
+    const response = await getImg(img, page);
+    console.log(response);
+    refs.gallery.insertAdjacentHTML(
+      'beforeend',
+      response.data.hits.map(picture => renderPicture(picture)).join('')
+    );
+    pagesLeft -= PER_PAGE;
+    lightBox.refresh();
+    
   }
-  } */
 }
+
