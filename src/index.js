@@ -9,7 +9,8 @@ import debounce from 'lodash.debounce';
 const refs = {
   form: document.querySelector('.search-form'),
   gallery: document.querySelector('.gallery'),
-  loadMoreButton: document.querySelector('#load-more'),  
+  /* uncomment for load more with button
+  loadMoreButton: document.querySelector('#load-more'),  */ 
 };
 
 const lineParameters = {
@@ -33,7 +34,8 @@ function getImg(img, page) {
   );
 }
 
-/* refs.loadMoreButton.addEventListener('click', loadMorehandler); */
+/* uncomment for load more with button
+refs.loadMoreButton.addEventListener('click', loadMorehandler); */
 refs.form.addEventListener('submit', submitHandler);
 
 async function submitHandler(e) {
@@ -41,8 +43,9 @@ async function submitHandler(e) {
   e.preventDefault();
   img = e.currentTarget.elements.searchQuery.value;
   refs.gallery.innerHTML = '';
+  /* uncomment for load more with button
   refs.loadMoreButton.classList.add('hidden');
-  refs.loadMoreButton.classList.remove('visible');
+  refs.loadMoreButton.classList.remove('visible'); */
   if (img.trim() === '') {
     Notiflix.Notify.failure('Please, enter your search query.');
     return;
@@ -59,8 +62,9 @@ async function submitHandler(e) {
         response.data.hits.map(picture => renderPicture(picture)).join('')
       );
       pagesLeft -= PER_PAGE;
+      /* uncomment for load more with button
       refs.loadMoreButton.classList.remove('hidden');
-      refs.loadMoreButton.classList.add('visible');
+      refs.loadMoreButton.classList.add('visible'); */
       smoothScroll();
       window.addEventListener('scroll', checkPosition);
     };
@@ -75,8 +79,9 @@ async function loadMorehandler() {
     Notiflix.Notify.info(
       "We're sorry, but you've reached the end of search results."
     );
+    /* uncomment for load more with button
     refs.loadMoreButton.classList.add('hidden');
-    refs.loadMoreButton.classList.remove('visible');
+    refs.loadMoreButton.classList.remove('visible'); */
     return;
   } else {
     try {
