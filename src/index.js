@@ -36,19 +36,18 @@ refs.loadMoreButton.addEventListener('click', loadMorehandler);
 refs.form.addEventListener('submit', submitHandler);
 
 async function submitHandler(e) {
-  pagesLeft = 0;
   e.preventDefault();
-  refs.loadMoreButton.classList.add('hidden');
-  refs.loadMoreButton.classList.remove('visible');
   img = e.currentTarget.elements.searchQuery.value;
   refs.gallery.innerHTML = '';
-  const response = await getImg(img, page);  
-  if (img === ' ' || img === '') {
+  refs.loadMoreButton.classList.add('hidden');
+  refs.loadMoreButton.classList.remove('visible');
+  if (img.trim() === '') {
     Notiflix.Notify.failure('Please, enter your search query.');
     return;
   }
+  const response = await getImg(img, page);  
   pagesLeft = response.data.totalHits;
-  if (pagesLeft === 0) {
+  if (response.data.totalHits === 0) {
     Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
     return;
   } else {
