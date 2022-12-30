@@ -134,7 +134,7 @@ function smoothScroll() {
 };
 
 
-async function checkPosition() {
+async function infiniteScroll() {
   // высота документа и высота экрана:
   const height = document.body.offsetHeight;
   const screenHeight = window.innerHeight;
@@ -159,7 +159,6 @@ console.log(position);
   } else {
     page += 1;
     const response = await getImg(img, page);
-    console.log(response);
     refs.gallery.insertAdjacentHTML(
       'beforeend',
       response.data.hits.map(picture => renderPicture(picture)).join('')
@@ -170,3 +169,4 @@ console.log(position);
   }
 }
 
+const checkPosition = debounce(infiniteScroll, 300);
