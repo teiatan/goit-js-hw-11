@@ -36,6 +36,7 @@ refs.loadMoreButton.addEventListener('click', loadMorehandler);
 refs.form.addEventListener('submit', submitHandler);
 
 async function submitHandler(e) {
+  page = 1;
   e.preventDefault();
   img = e.currentTarget.elements.searchQuery.value;
   refs.gallery.innerHTML = '';
@@ -45,24 +46,26 @@ async function submitHandler(e) {
     Notiflix.Notify.failure('Please, enter your search query.');
     return;
   }
-  const response = await getImg(img, page);  
-  pagesLeft = response.data.totalHits;
-  if (response.data.totalHits === 0) {
-    Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-    return;
-  } else {
-    Notiflix.Notify.success(`Hooray! We found ${pagesLeft} images.`);
-    refs.gallery.insertAdjacentHTML(
-      'beforeend',
-      response.data.hits.map(picture => renderPicture(picture)).join('')
-    );
-    pagesLeft -= PER_PAGE;
-    refs.loadMoreButton.classList.remove('hidden');
-    refs.loadMoreButton.classList.add('visible');
-    smoothScroll();
-  };
-lightBox.refresh();
-/* let infScroll = new InfiniteScroll( '.gallery', {append: required, onInit: loadMorehandler}); */
+  try {const response = await getImg(img, page);  
+    pagesLeft = response.data.totalHits;
+    if (response.data.totalHits === 0) {
+      Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+      return;
+    } else {
+      Notiflix.Notify.success(`Hooray! We found ${pagesLeft} images.`);
+      refs.gallery.insertAdjacentHTML(
+        'beforeend',
+        response.data.hits.map(picture => renderPicture(picture)).join('')
+      );
+      pagesLeft -= PER_PAGE;
+      refs.loadMoreButton.classList.remove('hidden');
+      refs.loadMoreButton.classList.add('visible');
+      smoothScroll();
+    };
+    lightBox.refresh();
+    /* let infScroll = new InfiniteScroll( '.gallery', {append: required, onInit: loadMorehandler}); */
+  } catch (error) {};
+  
 }
 
 async function loadMorehandler() {
@@ -74,6 +77,7 @@ async function loadMorehandler() {
     );
     refs.loadMoreButton.classList.add('hidden');
     refs.loadMoreButton.classList.remove('visible');
+    return;
   } else {
     try {
       const response = await getImg(img, page);
@@ -82,9 +86,9 @@ async function loadMorehandler() {
         response.data.hits.map(picture => renderPicture(picture)).join('')
       );
       pagesLeft -= PER_PAGE;
+      lightBox.refresh();
     } catch (error) {};
   }
-  lightBox.refresh();
 }
 
 function renderPicture(picture) {
@@ -118,7 +122,7 @@ const lightBox = new SimpleLightbox('.gallery a', {
 });
 
 function smoothScroll() {
-  /* const { height: cardHeight } = document
+  const { height: cardHeight } = document
     .querySelector('.gallery')
     .firstElementChild.getBoundingClientRect();
   
@@ -126,6 +130,6 @@ function smoothScroll() {
     top: cardHeight * -1,
     behavior: 'smooth',
     
-  }); */
+  });
 };
 
