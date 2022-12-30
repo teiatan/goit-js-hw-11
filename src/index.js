@@ -3,12 +3,14 @@ import Notiflix from 'notiflix';
 import SimpleLightbox from "simplelightbox";
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import axios from 'axios';
+import debounce from 'lodash.debounce';
 
 
 const refs = {
   form: document.querySelector('.search-form'),
   gallery: document.querySelector('.gallery'),
-  loadMoreButton: document.querySelector('#load-more'),  
+  /* uncomment for load more with button
+  loadMoreButton: document.querySelector('#load-more'),  */ 
 };
 
 const lineParameters = {
@@ -32,7 +34,8 @@ function getImg(img, page) {
   );
 }
 
-refs.loadMoreButton.addEventListener('click', loadMorehandler);
+/* uncomment for load more with button
+refs.loadMoreButton.addEventListener('click', loadMorehandler); */
 refs.form.addEventListener('submit', submitHandler);
 
 async function submitHandler(e) {
@@ -40,8 +43,9 @@ async function submitHandler(e) {
   e.preventDefault();
   img = e.currentTarget.elements.searchQuery.value;
   refs.gallery.innerHTML = '';
+  /* uncomment for load more with button
   refs.loadMoreButton.classList.add('hidden');
-  refs.loadMoreButton.classList.remove('visible');
+  refs.loadMoreButton.classList.remove('visible'); */
   if (img.trim() === '') {
     Notiflix.Notify.failure('Please, enter your search query.');
     return;
@@ -58,14 +62,14 @@ async function submitHandler(e) {
         response.data.hits.map(picture => renderPicture(picture)).join('')
       );
       pagesLeft -= PER_PAGE;
+      /* uncomment for load more with button
       refs.loadMoreButton.classList.remove('hidden');
-      refs.loadMoreButton.classList.add('visible');
+      refs.loadMoreButton.classList.add('visible'); */
       smoothScroll();
+      window.addEventListener('scroll', checkPosition);
     };
     lightBox.refresh();
-    /* let infScroll = new InfiniteScroll( '.gallery', {append: required, onInit: loadMorehandler}); */
   } catch (error) {};
-  
 }
 
 async function loadMorehandler() {
@@ -75,8 +79,9 @@ async function loadMorehandler() {
     Notiflix.Notify.info(
       "We're sorry, but you've reached the end of search results."
     );
+    /* uncomment for load more with button
     refs.loadMoreButton.classList.add('hidden');
-    refs.loadMoreButton.classList.remove('visible');
+    refs.loadMoreButton.classList.remove('visible'); */
     return;
   } else {
     try {
@@ -133,3 +138,40 @@ function smoothScroll() {
   });
 };
 
+
+async function infiniteScroll() {
+  // высота документа и высота экрана:
+  const height = document.body.offsetHeight;
+  const screenHeight = window.innerHeight;
+
+  // сколько проскроллено:
+  const scrolled = window.scrollY;
+
+  // порог для вызова функции
+  const threshold = height - screenHeight / 4;
+
+  // низ экрана относительно страницы:
+  const position = scrolled + screenHeight;
+console.log(position);
+  if (position < threshold) {
+    return;
+  } else if (pagesLeft <= 0) {
+    window.removeEventListener('scroll', checkPosition);
+    Notiflix.Notify.info(
+      "We're sorry, but you've reached the end of search results."
+    );
+    return;
+  } else {
+    page += 1;
+    const response = await getImg(img, page);
+    refs.gallery.insertAdjacentHTML(
+      'beforeend',
+      response.data.hits.map(picture => renderPicture(picture)).join('')
+    );
+    pagesLeft -= PER_PAGE;
+    lightBox.refresh();
+    
+  }
+}
+
+const checkPosition = debounce(infiniteScroll, 300);
